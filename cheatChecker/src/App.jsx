@@ -4,7 +4,10 @@ import PlayerForm from './components/PlayerForm';
 import PlayerList from './components/PlayerList';
 import { PlayerSummary } from './components/PlayerCard';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const configuredApiUrl = import.meta.env.VITE_API_URL;
+const API_URL = configuredApiUrl && !configuredApiUrl.includes('localhost')
+  ? configuredApiUrl
+  : 'https://cheat-checker-backend.vercel.app';
 
 function App() {
   const [players, setPlayers] = useState([]);

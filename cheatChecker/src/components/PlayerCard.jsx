@@ -1,3 +1,16 @@
+import { useEffect, useState } from 'react';
+
+const getReputationKey = (player) => `cheatchecker:reputation:${player.steamId || player.profileUrl}`;
+
+const loadReputation = (player) => {
+  try {
+    const savedReputation = window.localStorage.getItem(getReputationKey(player));
+    return savedReputation ? JSON.parse(savedReputation) : { vote: null, reportType: 'Wallhack' };
+  } catch {
+    return { vote: null, reportType: 'Wallhack' };
+  }
+};
+
 const formatStatName = (key) => key
   .replace(/([A-Z])/g, ' $1')
   .replace(/^./, (letter) => letter.toUpperCase());
@@ -39,21 +52,6 @@ function PlayerCard({ player, averages }) {
 
   return (
     <article className="player-card">
-      <header className="card-header">
-        <div className="identity-block">
-          <span className="mini-label">Steam account</span>
-          <h3>{player.username || 'Steam User'}</h3>
-          <span className="steam-id">SteamID64 · {player.steamId || 'Unavailable'}</span>
-        </div>
-
-        <div className="risk-block">
-          <span className="risk-label">Overall risk</span>
-          <div className={`score-pill ${positiveScore >= 70 ? 'high' : positiveScore >= 35 ? 'medium' : 'low'}`}>
-            {Math.round(positiveScore)}%
-          </div>
-        </div>
-      </header>
-
       <div className="profile-link-row">
         <a href={player.profileUrl} target="_blank" rel="noreferrer">
           {player.profileUrl || 'Open Steam profile'}
@@ -110,6 +108,78 @@ function PlayerCard({ player, averages }) {
         </div>
       </div>
     </article>
+  );
+}
+
+export function PlayerSummary({ player }) {
+  const [reputation, setReputation] = useState(() => loadReputation(player));
+  const { vote, reportType } = reputation;
+  const cheatPercent = typeof player.cheatProbability === 'number'
+    ? player.cheatProbability
+    : (player.cheatProbability === 'high' ? 82 : player.cheatProbability === 'medium' ? 46 : player.cheatProbability === 'low' ? 18 : 34);
+  const positiveScore = Math.max(0, Math.min(100, cheatPercent));
+  const positiveReputation = vote === 'positive' ? 1 : 0;
+  const negativeReputation = vote === 'negative' ? 1 : 0;
+  const positiveWidth = vote === 'negative' ? 0 : 100;
+  const negativeWidth = vote === 'negative' ? 100 : 0;
+
+  const handleReport = () => {
+    setReputation((currentReputation) => ({ ...currentReputation, vote: 'negative' }));
+  };
+
+  useEffect(() => {
+    window.localStorage.setItem(getReputationKey(player), JSON.stringify(reputation));
+  }, [player, reputation]);
+
+  return (
+    <div className="player-summary">
+      <header className="card-header">
+        <div className="identity-block">
+          <span className="mini-label">Steam account</span>
+          <h3>{player.username || 'Steam User'}</h3>
+          <span className="steam-id">SteamID64 · {player.steamId || 'Unavailable'}</span>
+        </div>
+
+        <div className="risk-block">
+          <span className="risk-label">Overall risk</span>
+          <div className={`score-pill ${positiveScore >= 70 ? 'high' : positiveScore >= 35 ? 'medium' : 'low'}`}>
+            {Math.round(positiveScore)}%
+          </div>
+        </div>
+      </header>
+
+      <div className="reputation-panel">
+        <div className="reputation-heading">
+          <div>
+            <span className="section-label">Community reputation</span>
+            <h4>Player feedback</h4>
+          </div>
+          <button type="button" className="rep-button positive" disabled={vote !== null} onClick={() => setReputation((currentReputation) => ({ ...currentReputation, vote: 'positive' }))}>
+            +rep
+          </button>
+        </div>
+        <div className="reputation-chart" aria-label={`${positiveReputation} positive reputation and ${negativeReputation} negative reputation`}>
+          <div className="reputation-line positive-line" style={{ width: `${positiveWidth}%` }} />
+          <div className="reputation-line negative-line" style={{ width: `${negativeWidth}%` }} />
+        </div>
+        <div className="reputation-counts">
+          <span className="positive-count">+{positiveReputation} rep</span>
+          <span className="negative-count">-{negativeReputation} rep</span>
+        </div>
+        <div className="report-controls">
+          <select disabled={vote !== null} value={reportType} onChange={(event) => setReputation((currentReputation) => ({ ...currentReputation, reportType: event.target.value }))} aria-label="Report reason">
+            <option>Wallhack</option>
+            <option>Aim assist</option>
+            <option>Farmer bot</option>
+            <option>Other cheating</option>
+          </select>
+          <button type="button" className="rep-button negative" disabled={vote !== null} onClick={handleReport}>
+            Report -rep
+          </button>
+        </div>
+        {vote === 'negative' && <p className="report-confirmation">Reported for {reportType}.</p>}
+      </div>
+    </div>
   );
 }
 

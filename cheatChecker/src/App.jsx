@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import PlayerForm from './components/PlayerForm';
 import PlayerList from './components/PlayerList';
+import { PlayerSummary } from './components/PlayerCard';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 function App() {
   const [players, setPlayers] = useState([]);
-  const [healthStatus, setHealthStatus] = useState('Checking backend...');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -31,30 +31,11 @@ function App() {
     }
   };
 
-  const checkHealth = async () => {
-    try {
-      const response = await fetch(`${API_URL}/health`);
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || 'The backend is unavailable.');
-      }
-
-      setHealthStatus('Backend online');
-      return true;
-    } catch (err) {
-      setHealthStatus('Backend offline');
-      setError(err.message || 'Unable to reach the backend.');
-      return false;
-    }
-  };
-
   useEffect(() => {
     const bootstrap = async () => {
       setLoading(true);
       setError('');
       setSuccessMessage('');
-      await checkHealth();
       await fetchPlayers();
       setLoading(false);
     };
@@ -94,10 +75,11 @@ function App() {
       }
 
       const refreshedPlayers = await fetchPlayers();
-      const newestPlayer = refreshedPlayers[refreshedPlayers.length - 1];
+      const returnedPlayers = Array.isArray(result.data) ? result.data : result.data ? [result.data] : [];
+      const newestPlayer = returnedPlayers[returnedPlayers.length - 1] || refreshedPlayers[refreshedPlayers.length - 1];
 
       if (newestPlayer) {
-        setPlayers(refreshedPlayers);
+        setPlayers([newestPlayer]);
         setSuccessMessage(`Profile loaded for ${newestPlayer.username || 'this account'}.`);
       } else {
         setPlayers([]);
@@ -119,10 +101,6 @@ function App() {
           <p className="brand-description">A clear read on player patterns, risk signals, and match performance.</p>
         </div>
 
-        <div className={`health-indicator ${healthStatus === 'Backend online' ? 'online' : 'offline'}`}>
-          <span className="status-dot" />
-          {healthStatus}
-        </div>
       </header>
 
       <main className="dashboard">
@@ -133,6 +111,12 @@ function App() {
           </div>
 
           <PlayerForm onAddPlayer={handleAddPlayer} isSubmitting={submitting} />
+          {players[0] && (
+            <PlayerSummary
+              key={players[0].steamId || players[0].profileUrl}
+              player={players[0]}
+            />
+          )}
         </section>
 
         <section className="panel results-panel">

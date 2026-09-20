@@ -27,6 +27,7 @@ h1 { font-size: 1.65rem; line-height: 1; }
 .player-form button { border: 1px solid #7aafd9; border-radius: 2px; background: #477da9; color: #f5f9fc; padding: 11px 14px; font-size: .8rem; font-weight: 700; cursor: pointer; }
 .player-form button:hover { background: #5790bd; }
 .player-form button:disabled { cursor: wait; opacity: .6; }
+.player-summary { margin: 22px -20px -20px; border-top: 1px solid var(--line); background: var(--surface-raised); }
 .results-heading { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 18px; }
 .player-count { color: var(--muted); font-size: .72rem; }
 .card-grid { display: grid; gap: 18px; }
@@ -41,6 +42,25 @@ h1 { font-size: 1.65rem; line-height: 1; }
 .score-pill.low { color: var(--green); }
 .score-pill.medium { color: var(--amber); }
 .score-pill.high { color: var(--red); }
+.reputation-panel { display: grid; gap: 10px; padding: 16px 20px; border-bottom: 1px solid var(--line); background: #17202a; }
+.reputation-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.reputation-heading h4 { margin: 4px 0 0; color: var(--text); font-size: .86rem; }
+.rep-button { border: 1px solid transparent; border-radius: 2px; padding: 7px 10px; font-size: .7rem; font-weight: 700; cursor: pointer; }
+.rep-button.positive { border-color: #4eac7f; background: #1d4938; color: #9ae3bd; }
+.rep-button.positive:hover { background: #28624b; }
+.rep-button.negative { border-color: #bd6561; background: #512a2c; color: #f2aaa5; }
+.rep-button.negative:hover { background: #6a3435; }
+.rep-button:disabled, .report-controls select:disabled { cursor: not-allowed; opacity: .45; }
+.reputation-chart { display: flex; gap: 3px; height: 8px; background: #29323d; }
+.reputation-line { min-width: 0; transition: width .2s ease; }
+.positive-line { background: var(--green); }
+.negative-line { background: var(--red); }
+.reputation-counts { display: flex; justify-content: space-between; font-size: .68rem; font-weight: 700; }
+.positive-count { color: var(--green); }
+.negative-count { color: var(--red); }
+.report-controls { display: flex; gap: 8px; }
+.report-controls select { min-width: 0; flex: 1; border: 1px solid var(--line); border-radius: 2px; background: var(--surface-input); color: var(--text); padding: 7px 9px; font-size: .72rem; }
+.report-confirmation { margin: 0; color: var(--muted); font-size: .68rem; }
 .profile-link-row { padding: 12px 20px; border-bottom: 1px solid var(--line); }
 .profile-link-row a { color: var(--blue); font-size: .72rem; text-decoration: none; word-break: break-all; }
 .profile-link-row a:hover { text-decoration: underline; }

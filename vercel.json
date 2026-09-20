@@ -1,0 +1,6 @@
+{
+  "framework": "vite",
+  "installCommand": "npm --prefix cheatChecker install",
+  "buildCommand": "npm --prefix cheatChecker run build",
+  "outputDirectory": "cheatChecker/dist"
+}
